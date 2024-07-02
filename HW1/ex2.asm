@@ -11,6 +11,7 @@ _start:
     movq %rsi, %rcx         # Size of data in bytes
     decq %rcx               # Ignore the terminator null
     movq %rcx, %rbx         # Save original size
+    
 
     # Simple string test
 simple_string_check:
@@ -33,9 +34,9 @@ scientific_string_check:
     movb (%rdi), %al        # Load byte from data
     testb %al, %al
     je set_type_scientific  # If byte is null, set type to 2 (scientific string)
-    cmpb $' ', %al
+    cmpb $32, %al
     jl not_scientific_string
-    cmpb $'~', %al
+    cmpb $126, %al
     jg not_scientific_string
     incq %rdi
     cmpq %rdi, %rbx         # Compare current pointer with original size
