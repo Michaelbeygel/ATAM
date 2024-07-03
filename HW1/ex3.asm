@@ -1,103 +1,131 @@
-.data
-root: .quad a, b, 0
-a: .quad c, 0
-b: .quad d, 0
-c: .quad 0
-d: .quad 0
-
 .text
 .global _start
 
 _start:
     # Initialize counters
-    movq $0, %r8   # Node counter
-    movq $0, %r9   # Leaf counter
+    xor %r8, %r8   # Node counter
+    xor %r9, %r9   # Leaf counter
 
-    # Traverse the tree using nested loops
-    movq $root, %rdi
-    jmp traverse
+    # Start traversal from root
+    mov $root, %rdi
 
-    # Store results
-    movq %r8, %rax   # Store node counter in register
-    movq %r9, %rbx   # Store leaf counter in register
-
-    # Exit the program
-    movq $60, %rax   # syscall: exit
-    xor %rdi, %rdi   # status: 0
-    syscall
-
-traverse:
-    # Loop 1
+    # Level 1
     cmpq $0, (%rdi)
-    je done
+    je check_leaf1
     addq $1, %r8
+
+level1_loop:
     movq (%rdi), %rsi
-
-    # Loop 2
-    cmpq $0, (%rsi)
-    je loop1_end
+    cmpq $0, %rsi
+    je level1_next
     addq $1, %r8
-    movq (%rsi), %rdx
 
-    # Loop 3
-    cmpq $0, (%rdx)
-    je loop2_end
+    # Level 2
+    movq %rsi, %rdi
+    cmpq $0, (%rdi)
+    je check_leaf2
     addq $1, %r8
-    movq (%rdx), %rcx
 
-    # Loop 4
-    cmpq $0, (%rcx)
-    je loop3_end
+level2_loop:
+    movq (%rdi), %rsi
+    cmpq $0, %rsi
+    je level2_next
     addq $1, %r8
-    movq (%rcx), %rbx
 
-    # Loop 5
-    cmpq $0, (%rbx)
-    je loop4_end
+    # Level 3
+    movq %rsi, %rdi
+    cmpq $0, (%rdi)
+    je check_leaf3
     addq $1, %r8
-    movq (%rbx), %r10
 
-    # Loop 6
-    cmpq $0, (%r10)
-    je loop5_end
+level3_loop:
+    movq (%rdi), %rsi
+    cmpq $0, %rsi
+    je level3_next
     addq $1, %r8
-    jmp count_leaves
 
-loop5_end:
-    cmpq $0, 8(%rbx)
-    jne count_leaves
+    # Level 4
+    movq %rsi, %rdi
+    cmpq $0, (%rdi)
+    je check_leaf4
+    addq $1, %r8
+
+level4_loop:
+    movq (%rdi), %rsi
+    cmpq $0, %rsi
+    je level4_next
+    addq $1, %r8
+
+    # Level 5
+    movq %rsi, %rdi
+    cmpq $0, (%rdi)
+    je check_leaf5
+    addq $1, %r8
+
+level5_loop:
+    movq (%rdi), %rsi
+    cmpq $0, %rsi
+    je level5_next
+    addq $1, %r8
+
+    # Level 6
+    movq %rsi, %rdi
+    cmpq $0, (%rdi)
+    je check_leaf6
+    addq $1, %r8
+
+level6_loop:
+    movq (%rdi), %rsi
+    cmpq $0, %rsi
+    je level6_next
+    addq $1, %r8
+
+    # No further levels, check for leaf
+    jmp check_leaf6
+
+level6_next:
+    addq $8, %rdi
+    jmp level6_loop
+
+check_leaf6:
     addq $1, %r9
-    jmp loop4_end
 
-loop4_end:
-    cmpq $0, 8(%rcx)
-    jne loop5
+level5_next:
+    addq $8, %rdi
+    jmp level5_loop
+
+check_leaf5:
     addq $1, %r9
-    jmp loop3_end
 
-loop3_end:
-    cmpq $0, 8(%rdx)
-    jne loop4
+level4_next:
+    addq $8, %rdi
+    jmp level4_loop
+
+check_leaf4:
     addq $1, %r9
-    jmp loop2_end
 
-loop2_end:
-    cmpq $0, 8(%rsi)
-    jne loop3
+level3_next:
+    addq $8, %rdi
+    jmp level3_loop
+
+check_leaf3:
     addq $1, %r9
-    jmp loop1_end
 
-loop1_end:
-    cmpq $0, 8(%rdi)
-    jne loop2
+level2_next:
+    addq $8, %rdi
+    jmp level2_loop
+
+check_leaf2:
+    addq $1, %r9
+
+level1_next:
+    addq $8, %rdi
+    jmp level1_loop
+
+check_leaf1:
     addq $1, %r9
 
 done:
-    ret
+    movq %r8, result_nodes
+    movq %r9, result_leaves
 
-count_leaves:
-    # Count leaves in loop 6
-    cmpq $0, 8(%r10)
-    jne loop5_end
-    addq $1, %r9
-    jmp loop5_end
