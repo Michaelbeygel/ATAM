@@ -125,7 +125,21 @@ level1_next:
 check_leaf1:
     addq $1, %r9
 
-done:
-    movq %r8, result_nodes
-    movq %r9, result_leaves
+compare:
 
+    movq %r8, %rax
+    movq $3, %rbx
+    cqo
+    idivq %rbx
+    movq %rax, %r8
+
+    cmpq %r8, %r9
+    jg greater_than
+    movq $1, rich_label
+    jmp done
+
+greater_than_or:
+    movq $0, rich_label
+
+done:
+    # Exit
