@@ -7,138 +7,100 @@ _start:
     xor %r9, %r9   # Leaf counter
 
     # Start traversal from root
-    mov $root, %rdi
+    mov $root, %rax
 
     # Level 1
-    cmpq $0, (%rdi)
+    addq $1, %r8
+    cmpq $0, (%r10)
+    je check_leaf1
+
+level1_loop:
+    movq (%r10), %r11
+    cmpq $0, %r11
     je check_leaf1
     addq $1, %r8
 
-level1_loop:
-    movq (%rdi), %rsi
+level2_loop:
+    movq (%r11), %r12
     cmpq $0, %rsi
-    je level1_next
-    addq $1, %r8
-
-    # Level 2
-    movq %rsi, %rdi
-    cmpq $0, (%rdi)
     je check_leaf2
     addq $1, %r8
 
-level2_loop:
-    movq (%rdi), %rsi
+level3_loop:
+    movq (%r12), %r13
     cmpq $0, %rsi
-    je level2_next
-    addq $1, %r8
-
-    # Level 3
-    movq %rsi, %rdi
-    cmpq $0, (%rdi)
     je check_leaf3
     addq $1, %r8
 
-level3_loop:
-    movq (%rdi), %rsi
+level4_loop:
+    movq (%r13), %r14
     cmpq $0, %rsi
-    je level3_next
-    addq $1, %r8
-
-    # Level 4
-    movq %rsi, %rdi
-    cmpq $0, (%rdi)
     je check_leaf4
     addq $1, %r8
 
-level4_loop:
-    movq (%rdi), %rsi
-    cmpq $0, %rsi
-    je level4_next
-    addq $1, %r8
-
-    # Level 5
-    movq %rsi, %rdi
-    cmpq $0, (%rdi)
+level5_loop:
+    movq (%r14), %r15
+    cmpq $0, %r15
     je check_leaf5
     addq $1, %r8
 
-level5_loop:
-    movq (%rdi), %rsi
-    cmpq $0, %rsi
-    je level5_next
+level6:
     addq $1, %r8
-
-    # Level 6
-    movq %rsi, %rdi
-    cmpq $0, (%rdi)
-    je check_leaf6
-    addq $1, %r8
-
-level6_loop:
-    movq (%rdi), %rsi
-    cmpq $0, %rsi
-    je level6_next
-    addq $1, %r8
-
-    # No further levels, check for leaf
-    jmp check_leaf6
-
-level6_next:
-    addq $8, %rdi
-    jmp level6_loop
-
-check_leaf6:
     addq $1, %r9
+    addq $8, %r15
 
 level5_next:
-    addq $8, %rdi
+    addq $8, %r14
     jmp level5_loop
 
-check_leaf5:
-    addq $1, %r9
-
 level4_next:
-    addq $8, %rdi
+    addq $8, %r13
     jmp level4_loop
 
-check_leaf4:
-    addq $1, %r9
-
 level3_next:
-    addq $8, %rdi
+    addq $8, %r12
     jmp level3_loop
 
-check_leaf3:
-    addq $1, %r9
-
 level2_next:
-    addq $8, %rdi
+    addq $8, %r11
     jmp level2_loop
 
-check_leaf2:
-    addq $1, %r9
-
 level1_next:
-    addq $8, %rdi
+    addq $8, %r10
     jmp level1_loop
 
 check_leaf1:
     addq $1, %r9
+    jmp compare
+
+check_leaf2:
+    addq $1, %r9
+    jmp level1_next
+
+check_leaf3:
+    addq $1, %r9
+    jmp level2_next 
+
+check_leaf4:
+    addq $1, %r9
+    jmp level3_next
+
+check_leaf5:
+    addq $1, %r9
+    jmp level4_next
 
 compare:
-
     movq %r8, %rax
     movq $3, %rbx
     cqo
     idivq %rbx
     movq %rax, %r8
-
     cmpq %r8, %r9
     jg greater_than
     movq $1, rich_label
     jmp done
 
-greater_than_or:
+greater_than:
     movq $0, rich_label
 
 done:
