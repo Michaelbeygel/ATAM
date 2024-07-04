@@ -81,12 +81,18 @@ scientific_string_check:
 not_scientific_string:
     # Check divisibility by 8, and non-nullity test of all 8 consecutive bytes
     leaq data(%rip), %rdi
+    incq %rbx
     movq %rbx, %rcx
-    testq $7, %rbx
+    andq $7, %rcx
+    testq %rcx, %rcx
     jnz done    # If not divisible by 8, set type to 4 (default)
+    movq %rbx, %rcx
+    xor %r10, %r10
+    movabsq $0x3030303030303030, %r10
+
 check_blocks:
     movq (%rdi), %rax       # Load 8 bytes from data
-    testq %rax, %rax
+    cmpq %r10, %rax 
     je done  # If block is null, exit
     addq $8, %rdi
     subq $8, %rcx
@@ -95,14 +101,21 @@ check_blocks:
     jmp set_type_divisible          # Otherwise, set type to 3 (divisible by 8)
 
 set_type_simple:
+    movb (%rdi), %al       # Load byte from data
+    testb %al, %al
+    jne not_scientific_string
     movb $1, type(%rip)     # Set type to 1 (simple string)
     jmp done
 
 set_type_scientific:
+    movb (%rdi), %al       # Load byte from data
+    testb %al, %al
+    jne not_scientific_string
     movb $2, type(%rip)     # Set type to 2 (scientific string)
     jmp done
 
 set_type_divisible:
+    movb (%rdi), %al       # Load byte from data
     movb $3, type(%rip)     # Set type to 3 (divisible by 8)
     jmp done
 
