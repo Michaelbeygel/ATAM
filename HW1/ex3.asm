@@ -7,7 +7,7 @@ _start:
     xor %r9, %r9   # Leaf counter
 
     # Start traversal from root
-    mov $root, %rax
+    mov $root, %r10
 
     # Level 1
     addq $1, %r8
@@ -97,11 +97,10 @@ compare:
     movq %rax, %r8
     cmpq %r8, %r9
     jg greater_than
-    movq $1, rich_label
+    movq $1, rich
     jmp done
 
 greater_than:
-    movq $0, rich_label
+    movq $0, rich
 
 done:
-    # Exit
