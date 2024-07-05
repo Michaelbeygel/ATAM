@@ -48,5 +48,5 @@ Node8:
 	.quad Node7
 	.int 6
 	.quad 0
-nodes: Node4, Node6, Node3
+nodes: .quad Node4, Node6, Node3
 result: .byte 0
