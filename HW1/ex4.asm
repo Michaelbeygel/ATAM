@@ -1,13 +1,5 @@
 .global _start
 
-.section .data
-nodes:      .quad node1, node2, node3
-result:     .byte 0
-
-node1:      .quad 0, 1, node2  # prev, data, next
-node2:      .quad node1, 3, node3
-node3:      .quad node2, 2, 0
-
 .section .text
 _start:
 
@@ -30,24 +22,22 @@ find_first_node:
     testq %rax, %rax         # Check if prev pointer is NULL
     jz found_first_node      # If NULL, found the first node
     movq %rax, %rsi          # Move to previous node (rsi = prev)
-
     jmp find_first_node      # Continue loop
 
 found_first_node:
     # Store address of the first node in r8
     movq %rsi, %r8
-
     mov %rdi, %rsi # restore the current node to rsi
 
 find_last_node:
-    movq 12(%rsi), %rax        # Load next pointer (offset 0 bytes) into rax
-    testq %rax, %rax         # Check if nezt pointer is NULL
+    movq 12(%rsi), %rbx        # Load next pointer (offset 0 bytes) into rbx
+    testq %rbx, %rbx         # Check if nezt pointer is NULL
     jz found_last_node      # If NULL, found the last node
-    movq %rax, %rsi          # Move to next node (rsi = prev)
+    movq %rbx, %rsi          # Move to next node (rsi = prev)
 
-    jmp find_first_node      # Continue loop
+    jmp find_last_node      # Continue loop
 
-found_first_node:
+found_last_node:
     # Store address of the last node in r9
     movq %rsi, %r9
  
@@ -57,7 +47,7 @@ found_first_node:
     # status before loop on all the nodes in the list:
     # r8 = first node of the list
     # r9 = last node of the list
-sort_check_for_all_nodes # loop for each of the 3 nodes
+sort_check_for_all_nodes: # loop for each of the 3 nodes
     cmp $3, %r12 # if we check all 3 nodes
     jge Done
     mov (%rbp, %r12, 8), %rsi # rsi = the next node in the given list
@@ -65,10 +55,11 @@ sort_check_for_all_nodes # loop for each of the 3 nodes
 
 
 check_left_side:
-    xor $r11, $r11 # check if left side is checked
+    xor %r11, %r11 # check if left side is checked
     mov %r8, %rax 
     mov (%rsi), %rbx
     jmp check_sorted
+
 check_right_side:
     inc %r11
     mov %rdi, %rsi # restore the current node into rsi
@@ -76,19 +67,19 @@ check_right_side:
     
 
 check_sorted:
-    mov $1 %r13 # increasing flag = true
-    mov $1 %r14 # decreasing flag = true
+    mov $1, %r13 # increasing flag = true
+    mov $1, %r14 # decreasing flag = true
 
 // check if list is sorted, asume the start node = rax, end node = rbx
 check_sorted_loop:
-    test %rax, %rbx 
+    test %rax, %rax 
     je not_sorted  # check if start is null
 
-    test %rax, %rbx 
+    test %rbx, %rbx 
     je not_sorted  # check if end is null
 
-    mov %rax, $rsi
-
+    mov %rax, %rsi
+    mov 12(%rsi), %r15
     cmp %rbx, 12(%rsi)             # Compare current->next (12 bytes offset) with end
     je check_sorted_loop_end       # If current->next == end, jump to loop_end
 
@@ -102,6 +93,7 @@ check_sorted_loop:
 continue_loop1:
     cmp  %rcx ,8(%rsi) # check if current->next->data > current->data
     jl set_not_decreasing
+
 continue_loop2:
     mov 12(%rsi), %rsi     # Move to the next node (current = current->next)
     jmp check_sorted_loop         # Repeat the loop    
@@ -109,6 +101,7 @@ continue_loop2:
 set_not_increasing: 
     mov $0, %r13
     jmp continue_loop1
+
 set_not_decreasing:
     mov $0, %r14
     jmp continue_loop2
@@ -128,7 +121,7 @@ is_sorted:
     jmp set_sort_count
 
 set_sort_count:
-    inc %r10 // inc coount if the left and the right side is sorted
+    inc %r10 # inc coount if the left and the right side is sorted
 
 not_sorted:
     mov %rdi, %rsi # restore the current node into rsi
@@ -136,4 +129,4 @@ not_sorted:
     jmp sort_check_for_all_nodes
 
 Done:
-    move %r10, result
+    mov %r10, result
