@@ -7,12 +7,14 @@ _start:
     xor %r9, %r9   # Leaf counter
 
     # Start traversal from root
-    mov $root, %rax
+    mov $root, %r10
 
     # Level 1
     addq $1, %r8
     cmpq $0, (%r10)
-    je check_leaf1
+    jne level1_loop
+    addq $1, %r9
+    jmp compare
 
 level1_loop:
     movq (%r10), %r11
@@ -22,19 +24,19 @@ level1_loop:
 
 level2_loop:
     movq (%r11), %r12
-    cmpq $0, %rsi
+    cmpq $0, %r12
     je check_leaf2
     addq $1, %r8
 
 level3_loop:
     movq (%r12), %r13
-    cmpq $0, %rsi
+    cmpq $0, %r13
     je check_leaf3
     addq $1, %r8
 
 level4_loop:
     movq (%r13), %r14
-    cmpq $0, %rsi
+    cmpq $0, %r14
     je check_leaf4
     addq $1, %r8
 
@@ -70,38 +72,45 @@ level1_next:
     jmp level1_loop
 
 check_leaf1:
+    cmpq (root), %r10
+    jne compare
     addq $1, %r9
     jmp compare
 
 check_leaf2:
+    cmpq (%r10), %r11
+    jne level1_next
     addq $1, %r9
     jmp level1_next
 
 check_leaf3:
+    cmpq (%r11), %r12
+    jne level2_next
     addq $1, %r9
     jmp level2_next 
 
 check_leaf4:
+    cmpq (%r12), %r13
+    jne level2_next
     addq $1, %r9
     jmp level3_next
 
 check_leaf5:
+    cmpq (%r13), %r14
+    jne level2_next
     addq $1, %r9
     jmp level4_next
 
 compare:
-    movq %r8, %rax
+    movq %r9, %rax
     movq $3, %rbx
-    cqo
-    idivq %rbx
-    movq %rax, %r8
-    cmpq %r8, %r9
+    imulq %rbx
+    cmpq %rax, %r8
     jg greater_than
-    movq $1, rich_label
+    movq $1, rich
     jmp done
 
 greater_than:
-    movq $0, rich_label
+    movq $0, rich
 
 done:
-    # Exit
