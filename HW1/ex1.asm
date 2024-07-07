@@ -2,7 +2,6 @@
 
 .section .text
 _start:
-#your code here
     # Load the address of the array into RSI
     movq Adress(%rip), %rsi
 

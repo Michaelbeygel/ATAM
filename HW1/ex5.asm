@@ -6,7 +6,7 @@ _start:
     movq $0, %rsi # index
     movq size(%rip), %rbx # size
     cmpq $3, %rbx
-    jl success
+    jl success_HW1
     movslq (%rdi, %rsi, 4), %r13 # a0
     incq %rsi
     movslq (%rdi, %rsi, 4), %r14 # a1
@@ -14,7 +14,7 @@ _start:
     movslq (%rdi, %rsi, 4), %r15 # a2
     
 
-check_diffs_diff_series:
+check_diffs_diff_series_HW1:
     movq %r14, %rcx # move to calculate base diff
     imul $2, %rcx # 2a_1
     movq %r13, %r8 # a_0
@@ -24,30 +24,30 @@ check_diffs_diff_series:
     movq %r14, %r11 # a_i-1
     movq %r15, %r12 # a_i
 
-check_diffs_diff_series_loop:
+check_diffs_diff_series_loop_HW1:
     cmpq %rsi, %rbx
-    je success
+    je success_HW1
     movslq (%rdi, %rsi, 4), %r12
     movq %r11, %r9 # move for multiplication
     imul $2, %r9 # 2a_i-1
     subq %r9, %r10 # a_i-2 - 2a_i-1
     addq %r12, %r10 # a_i-2 - 2a_i-1 + a_i
     cmpq %r10, %r8 # compare diffs
-    jne check_diffs_geo_series
+    jne check_diffs_geo_series_HW1
     incq %rsi
     movq %r11, %r10
     movq %r12, %r11
-    jmp check_diffs_diff_series_loop
+    jmp check_diffs_diff_series_loop_HW1
 
-check_diffs_geo_series:
+check_diffs_geo_series_HW1:
     movq %r13, %r10 # a_i-2
     movq %r14, %r11 # a_i-1
     movq %r15, %r12 # a_i
     movq $2, %rsi # index
 
-check_diffs_geo_series_loop:
+check_diffs_geo_series_loop_HW1:
     cmpq %rsi, %rbx
-    je success
+    je success_HW1
     movslq (%rdi, %rsi, 4), %r12
     movq %r11, %r8 # a_i-1
     subq %r10, %r8 # a_i-1 - a_i-2
@@ -61,14 +61,14 @@ check_diffs_geo_series_loop:
     imul %r13, %rcx # a_0(a_i-1 - a_i)
     addq %rcx, %r10 # a_0(a_i-1 - a_i) + a_1(a_i - a_i-2)
     cmpq %r10, %r8 # compare diffs
-    jne check_ratios_diff_series
+    jne check_ratios_diff_series_HW1
     incq %rsi
     movq %r11, %r10
     movq %r12, %r11
-    jmp check_diffs_geo_series_loop
+    jmp check_diffs_geo_series_loop_HW1
 
 
-check_ratios_diff_series:
+check_ratios_diff_series_HW1:
     movq %r15, %r9 # a_2
     imul %r13, %r9 # a_0 * a_2
     movq %r14, %rax # a_1
@@ -81,9 +81,9 @@ check_ratios_diff_series:
     movq %r15, %r12 # a_i
     movq $2, %rsi # index
 
-check_ratios_diff_series_loop:
+check_ratios_diff_series_loop_HW1:
     cmpq %rsi, %rbx
-    je success
+    je success_HW1
     movslq (%rdi, %rsi, 4), %r12
     movq %r10, %r8 # a_i-2 
     imul %r12, %r8 # a_i * a_i-2
@@ -94,13 +94,13 @@ check_ratios_diff_series_loop:
     imul %r11, %r10 # a_i-1 * a_i-2
     imul %r9, %r10 # a_i-1 * a_i-2 (a_0 * a_2 - a_1 ^ 2)
     cmpq %r10, %r8 # compare diffs
-    jne check_ratios_geo_series
+    jne check_ratios_geo_series_HW1
     incq %rsi
     movq %r11, %r10
     movq %r12, %r11
-    jmp check_ratios_diff_series_loop
+    jmp check_ratios_diff_series_loop_HW1
 
-check_ratios_geo_series:
+check_ratios_geo_series_HW1:
     movq %r14, %r9 # a_1
     imul %r9, %r9 # a_1 ^ 2
     movq %r15, %rax # a_2
@@ -110,9 +110,9 @@ check_ratios_geo_series:
     movq %r15, %r12 # a_i
     movq $2, %rsi # index
 
-check_ratios_geo_series_loop:
+check_ratios_geo_series_loop_HW1:
     cmpq %rsi, %rbx
-    je success
+    je success_HW1
     movslq (%rdi, %rsi, 4), %r12
     imul %r12, %r10 # a_i * a_i-2
     imul %r9, %r10 # a_1 ^ 2 * a_i * a_i-2
@@ -120,13 +120,13 @@ check_ratios_geo_series_loop:
     imul %r8, %r8 # a_i-1 ^ 2
     imul %rax, %r8 # a_2 * a_0 * a_i-1 ^ 2
     cmpq %r10, %r8 # compare ratios
-    jne done
+    jne done_HW1
     incq %rsi
     movq %r11, %r10
     movq %r12, %r11
-    jmp check_ratios_geo_series_loop
+    jmp check_ratios_geo_series_loop_HW1
 
-success:
+success_HW1:
     movq $1, seconddegree
 
-done:
+done_HW1:
