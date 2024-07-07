@@ -8,8 +8,8 @@ _start:
     xor %r12, %r12   # counter for number of nodes to check on
 
 
-    leaq nodes(%rip), %rbp    # Load address of nodes into rbp
-    movq (%rbp), %rsi         # Load first node pointer into rsi
+    leaq nodes(%rip), %r15    # Load address of nodes into r15
+    movq (%r15), %rsi         # Load first node pointer into rsi
 
     
 
@@ -50,7 +50,7 @@ found_last_node_HW1:
 all_nodes_loop_HW1: # loop for each of the 3 nodes
     cmpq $3, %r12 # if we check all 3 nodes
     je set_result_HW1
-    movq (%rbp, %r12, 8), %rsi # rsi = the next node in the given list
+    movq (%r15, %r12, 8), %rsi # rsi = the next node in the given list
     incq %r12
     movq %rsi, %rdi # store the current node
 
