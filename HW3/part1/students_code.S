@@ -59,11 +59,15 @@ compare_num:
   dec %rsp # remove the last byte read
   movb $0, (%rsp) # add null terminator
   mov %r14, %rdi # set the string address
+  mov %r14, %rsp
   push %r10
+  push %r9
   call atam_atol
+  pop %r9
   pop %r10  
   cmp %r12, %rax  # compare the number with the limit
   jle check_if_done # if the number is less than the limit we need to read the next number
+
 
 increment_counter:
   inc %r10 
