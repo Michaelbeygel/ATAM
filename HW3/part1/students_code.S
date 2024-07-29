@@ -50,7 +50,7 @@ read_loop:
   je compare_num # If the return value is 0, we reached the end of the file
 
   # check byte equals separator
-  movb -1(%rsp), %bl # get the last byte read
+  movzbl -1(%rsp), %ebx # get the last byte read
   cmp %rbx ,%r13 # compare it with the separator
   je compare_num # if it is equal to the separator we need to compare the number
   jmp read_loop # if it is not equal to the separator we need to read the next byte
