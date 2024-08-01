@@ -9,11 +9,14 @@ void my_load_idt(struct desc_ptr *idtr) {
 }
 
 void my_set_gate_offset(gate_desc *gate, unsigned long addr) {
-    gate->offset_low = addr;
-    gate->offset_middle = addr >> 16;
-    gate->offset_high = addr >> 32;
+    gate->offset_low = addr & 0xFFFF;
+    gate->offset_middle = (addr >> 16) & 0xFFFF;
+    gate->offset_high = (addr >> 32) & 0xFFFFFFFF;
 }
 
 unsigned long my_get_gate_offset(gate_desc *gate) {
-    return (gate->offset_high << 32) | (gate->offset_middle << 16) | gate->offset_low;
+    unsigned long destGate = gate->offset_high << 16;
+    destGate += gate->offset_middle;
+    destGate = destGate << 16;
+    return destGate + gate->offset_low;
 }
