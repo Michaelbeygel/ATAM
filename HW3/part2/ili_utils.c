@@ -1,11 +1,11 @@
 #include <asm/desc.h>
 
 void my_store_idt(struct desc_ptr *idtr) {
-    asm("sidt %0" : "=m" (*idtr));
+    asm volatile("sidt %0" : "=m" (*idtr)::);
 }
 
 void my_load_idt(struct desc_ptr *idtr) {
-    asm("lidt %0" : : "m" (*idtr));
+    asm volatile("lidt %0" : : "m" (*idtr):);
 }
 
 void my_set_gate_offset(gate_desc *gate, unsigned long addr) {
@@ -15,8 +15,9 @@ void my_set_gate_offset(gate_desc *gate, unsigned long addr) {
 }
 
 unsigned long my_get_gate_offset(gate_desc *gate) {
-    unsigned long destGate = gate->offset_high << 16;
-    destGate += gate->offset_middle;
-    destGate = destGate << 16;
-    return destGate + gate->offset_low;
+    unsigned long dest = gate->offset_high;
+    dest <<= 16;
+    dest += gate->offset_middle;
+    dest <<= 16;
+    return dest + gate->offset_low;
 }
