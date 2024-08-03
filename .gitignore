@@ -1,0 +1,29 @@
+# Compiled object files
+*.o
+*.obj
+
+# Executables
+*.exe
+*.out
+
+# Compiled libraries
+*.a
+*.lib
+
+# Debug files
+*.dSYM/
+*.pdb
+
+# Build output directories
+build/
+bin/
+
+# Editor and IDE files
+.vscode/
+.idea/
+
+# Dependency directories
+vendor/
+
+# tests
+tests/
